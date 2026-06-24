@@ -1,0 +1,14 @@
+{
+  "name": "schabot-presentation",
+  "version": "1.0.0",
+  "description": "Schachbot summer-project presentation (reveal.js). Runs offline from assets/vendor — no install needed.",
+  "private": true,
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "comment": "reveal.js 6 and chart.js 4 are already bundled in assets/vendor/, so the deck works by just opening index.html. These deps are listed only as provenance; run 'npm install' only if you want to re-vendor them.",
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "reveal.js": "^6.0.1"
+  }
+}

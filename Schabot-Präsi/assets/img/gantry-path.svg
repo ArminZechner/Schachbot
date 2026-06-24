@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 8 600 540" width="600" height="540" font-family="Segoe UI, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="pg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f6d488"/><stop offset="100%" stop-color="#c8732f"/>
+    </linearGradient>
+    <radialGradient id="mg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7be0ff" stop-opacity="1"/>
+      <stop offset="55%" stop-color="#4fb6e8" stop-opacity=".5"/>
+      <stop offset="100%" stop-color="#4fb6e8" stop-opacity="0"/>
+    </radialGradient>
+    <style>
+      @keyframes flow { to { stroke-dashoffset: -64; } }
+      .route { animation: flow 1.2s linear infinite; }
+    </style>
+  </defs>
+
+  <rect width="600" height="560" fill="#14110d"/>
+
+  <!-- board -->
+  <g>
+    <!-- squares -->
+    <!-- generated 8x8: dark #3a2c1f / light #5a4632 -->
+    <g>
+      <rect x="44"  y="24"  width="512" height="512" fill="#3a2c1f"/>
+      <!-- light squares via overlay rects (every other) -->
+    </g>
+    <g fill="#5a4632">
+      <!-- row 8 (y=24) --><rect x="108" y="24" width="64" height="64"/><rect x="236" y="24" width="64" height="64"/><rect x="364" y="24" width="64" height="64"/><rect x="492" y="24" width="64" height="64"/>
+      <!-- row 7 (y=88) --><rect x="44" y="88" width="64" height="64"/><rect x="172" y="88" width="64" height="64"/><rect x="300" y="88" width="64" height="64"/><rect x="428" y="88" width="64" height="64"/>
+      <!-- row 6 (y=152)--><rect x="108" y="152" width="64" height="64"/><rect x="236" y="152" width="64" height="64"/><rect x="364" y="152" width="64" height="64"/><rect x="492" y="152" width="64" height="64"/>
+      <!-- row 5 (y=216)--><rect x="44" y="216" width="64" height="64"/><rect x="172" y="216" width="64" height="64"/><rect x="300" y="216" width="64" height="64"/><rect x="428" y="216" width="64" height="64"/>
+      <!-- row 4 (y=280)--><rect x="108" y="280" width="64" height="64"/><rect x="236" y="280" width="64" height="64"/><rect x="364" y="280" width="64" height="64"/><rect x="492" y="280" width="64" height="64"/>
+      <!-- row 3 (y=344)--><rect x="44" y="344" width="64" height="64"/><rect x="172" y="344" width="64" height="64"/><rect x="300" y="344" width="64" height="64"/><rect x="428" y="344" width="64" height="64"/>
+      <!-- row 2 (y=408)--><rect x="108" y="408" width="64" height="64"/><rect x="236" y="408" width="64" height="64"/><rect x="364" y="408" width="64" height="64"/><rect x="492" y="408" width="64" height="64"/>
+      <!-- row 1 (y=472)--><rect x="44" y="472" width="64" height="64"/><rect x="172" y="472" width="64" height="64"/><rect x="300" y="472" width="64" height="64"/><rect x="428" y="472" width="64" height="64"/>
+    </g>
+    <rect x="44" y="24" width="512" height="512" fill="none" stroke="#caa463" stroke-width="2"/>
+
+    <!-- highlight start + target squares -->
+    <rect x="300" y="408" width="64" height="64" fill="#e8b04b" opacity=".18"/>
+    <rect x="300" y="280" width="64" height="64" fill="#4fb6e8" opacity=".22"/>
+
+    <!-- neighbouring pieces (obstacles) -->
+    <g fill="#100d0a" stroke="#caa463" stroke-width="1.5">
+      <circle cx="332" cy="376" r="17"/>  <!-- e3 blocker -->
+      <circle cx="268" cy="376" r="17"/>  <!-- d3 (centred on square) -->
+      <circle cx="396" cy="376" r="17"/>  <!-- f3 (centred on square) -->
+      <circle cx="268" cy="312" r="17"/>  <!-- d4 -->
+    </g>
+
+    <!-- the moving piece on start square -->
+    <circle cx="332" cy="440" r="18" fill="url(#pg)" stroke="#6e3c14" stroke-width="2"/>
+  </g>
+
+  <!-- weaving route: e2 -> half-left to gridline -> up the d/e line -> half-right into e4 -->
+  <path id="rt" class="route" fill="none" stroke="#f6d488" stroke-width="4"
+        stroke-linecap="round" stroke-dasharray="10 12"
+        d="M332 440 L300 440 L300 312 L332 312"/>
+
+  <!-- magnet glow travelling the route -->
+  <circle r="26" fill="url(#mg)">
+    <animateMotion dur="2.6s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear">
+      <mpath href="#rt"/>
+    </animateMotion>
+  </circle>
+
+  <!-- labels -->
+  <g fill="#b7a98f" font-size="16" text-anchor="middle">
+    <text x="332" y="500" fill="#e8b04b" font-weight="700">E2  start</text>
+    <text x="332" y="262" fill="#7be0ff" font-weight="700">E4  target</text>
+  </g>
+</svg>

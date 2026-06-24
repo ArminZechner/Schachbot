@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="Segoe UI, system-ui, sans-serif">
+  <defs>
+    <!-- backgrounds -->
+    <radialGradient id="bg" cx="72%" cy="6%" r="95%">
+      <stop offset="0%"  stop-color="#241a12"/>
+      <stop offset="42%" stop-color="#17120d"/>
+      <stop offset="100%" stop-color="#0d0a08"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"  stop-color="#f6d488"/>
+      <stop offset="48%" stop-color="#e8b04b"/>
+      <stop offset="100%" stop-color="#c8732f"/>
+    </linearGradient>
+    <linearGradient id="goldShine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#c8732f"/>
+      <stop offset="42%"  stop-color="#f6d488"/>
+      <stop offset="50%"  stop-color="#fff4dc"/>
+      <stop offset="58%"  stop-color="#f6d488"/>
+      <stop offset="100%" stop-color="#c8732f"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#eceff3"/>
+      <stop offset="22%" stop-color="#aab2bb"/>
+      <stop offset="55%" stop-color="#5c646e"/>
+      <stop offset="100%" stop-color="#2a2f35"/>
+    </linearGradient>
+    <linearGradient id="metalV" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="#eceff3"/>
+      <stop offset="22%" stop-color="#aab2bb"/>
+      <stop offset="55%" stop-color="#5c646e"/>
+      <stop offset="100%" stop-color="#2a2f35"/>
+    </linearGradient>
+    <linearGradient id="piece" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2b2620"/>
+      <stop offset="100%" stop-color="#0c0a08"/>
+    </linearGradient>
+    <radialGradient id="magnet" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#7be0ff" stop-opacity=".95"/>
+      <stop offset="35%" stop-color="#4fb6e8" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#4fb6e8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="board" width="116" height="116" patternUnits="userSpaceOnUse">
+      <rect width="116" height="116" fill="#3a2c1f"/>
+      <rect width="58" height="58" fill="#5a4632"/>
+      <rect x="58" y="58" width="58" height="58" fill="#5a4632"/>
+    </pattern>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="glowf" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <style>
+      @keyframes dash   { to { stroke-dashoffset: -240; } }
+      @keyframes pulse  { 0%,100% { opacity:.5; transform:scale(.85);} 50% { opacity:1; transform:scale(1.12);} }
+      @keyframes bob    { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-7px);} }
+      @keyframes shimmer{ to { transform: translateX(360px);} }
+      @keyframes blink  { 0%,100%{opacity:.25} 50%{opacity:1} }
+      @keyframes fadein { from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:translateY(0)} }
+      .trace  { animation: dash 5s linear infinite; }
+      .mag    { transform-box: fill-box; transform-origin: center; animation: pulse 1.8s ease-in-out infinite; }
+      .king   { transform-box: fill-box; transform-origin: bottom center; animation: bob 3.4s ease-in-out infinite; }
+      .node   { animation: blink 2.6s ease-in-out infinite; }
+      .shine  { animation: shimmer 3.6s ease-in-out infinite; }
+      .ttl    { opacity:0; animation: fadein .9s ease-out forwards; }
+      .d1{animation-delay:.15s}.d2{animation-delay:.45s}.d3{animation-delay:.75s}
+    </style>
+  </defs>
+
+  <!-- background -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#board)" opacity="0.05"/>
+  <rect width="1280" height="720" fill="url(#bg)" opacity="0.25"/>
+
+  <!-- circuit traces + nodes -->
+  <g fill="none" stroke="#e8b04b" stroke-width="2" opacity=".55" stroke-linecap="round">
+    <path class="trace" stroke-dasharray="10 14" d="M40 660 H300 l40 -40 H520"/>
+    <path class="trace" stroke-dasharray="10 14" d="M1240 70 H1010 l-36 36 H820"/>
+    <path class="trace" stroke-dasharray="8 18"  d="M70 120 V300 l40 40 V430"/>
+    <path class="trace" stroke-dasharray="8 18"  d="M1210 640 V470 l-40 -40 V330"/>
+  </g>
+  <g fill="#f6d488">
+    <circle class="node" cx="520" cy="660" r="5"/>
+    <circle class="node" cx="820" cy="106" r="5" style="animation-delay:.7s"/>
+    <circle class="node" cx="110" cy="430" r="5" style="animation-delay:1.2s"/>
+    <circle class="node" cx="1170" cy="330" r="5" style="animation-delay:1.6s"/>
+  </g>
+
+  <!-- ===== machine scene ===== -->
+  <g transform="translate(640 486)">
+    <!-- board shadow -->
+    <ellipse cx="0" cy="40" rx="300" ry="120" fill="#000" opacity=".5" filter="url(#soft)"/>
+    <!-- iso chessboard -->
+    <g transform="scale(1 0.5) rotate(45)">
+      <rect x="-232" y="-232" width="464" height="464" fill="url(#board)"
+            stroke="#caa463" stroke-width="3" rx="4"/>
+    </g>
+
+    <!-- chess pieces (upright over the board) -->
+    <g>
+      <ellipse cx="-118" cy="20" rx="26" ry="9" fill="#000" opacity=".45" filter="url(#soft)"/>
+      <text x="-118" y="34" font-size="74" text-anchor="middle" fill="url(#piece)" stroke="#caa463" stroke-width="1">&#9823;</text>
+    </g>
+    <g>
+      <ellipse cx="120" cy="6" rx="26" ry="9" fill="#000" opacity=".45" filter="url(#soft)"/>
+      <text x="120" y="20" font-size="74" text-anchor="middle" fill="url(#piece)" stroke="#caa463" stroke-width="1">&#9822;</text>
+    </g>
+    <!-- the hero king under the magnet -->
+    <g class="king">
+      <ellipse cx="0" cy="34" rx="34" ry="11" fill="#000" opacity=".5" filter="url(#soft)"/>
+      <text x="0" y="40" font-size="128" text-anchor="middle" fill="url(#piece)" stroke="#e8b04b" stroke-width="1.5">&#9818;</text>
+    </g>
+  </g>
+
+  <!-- (gantry graphic removed per feedback — keeps the title clean) -->
+
+  <!-- ===== wordmark ===== -->
+  <g class="ttl d1" text-anchor="middle">
+    <!-- crown accent -->
+    <text x="640" y="120" font-size="44" fill="url(#gold)">&#9818;</text>
+    <text x="640" y="206" font-size="100" font-weight="800" letter-spacing="4"
+          fill="url(#gold)" style="paint-order:stroke">SCHACHBOT</text>
+    <!-- shimmer sweep clipped to the wordmark area -->
+    <g clip-path="url(#wm)">
+      <rect class="shine" x="-360" y="130" width="220" height="100" fill="#fff" opacity=".18"
+            transform="skewX(-18)"/>
+    </g>
+  </g>
+  <clipPath id="wm"><rect x="260" y="130" width="760" height="100"/></clipPath>
+
+  <text class="ttl d2" x="640" y="258" text-anchor="middle" font-size="27"
+        fill="#f3ead7" letter-spacing="2">The chess board that moves its own pieces</text>
+</svg>

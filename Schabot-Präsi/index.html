@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Schachbot, A chess board that moves its own pieces</title>
+
+  <link rel="stylesheet" href="assets/vendor/reset.css">
+  <link rel="stylesheet" href="assets/vendor/reveal.css">
+  <link rel="stylesheet" href="assets/vendor/theme/black.css" id="theme">
+  <link rel="stylesheet" href="assets/vendor/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="assets/css/schabot.css">
+</head>
+<body>
+
+  <!-- global chrome -->
+  <div id="speaker" class="speaker sp-daniel">
+    <span class="dot" style="background:currentColor"></span>
+    <span class="role" id="sp-name">Daniel</span>
+    <span class="muted" id="sp-topic">Vision</span>
+  </div>
+  <div class="deck-brand">SCHACH<b>BOT</b></div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ============================================================
+           1 · TITLE  (Daniel)
+           ============================================================ -->
+      <section data-sp="daniel" data-name="Daniel" data-topic="Intro" data-time="0:30"
+               data-background-color="#0d0a08">
+        <div class="vcenter">
+          <img src="assets/img/title.svg" alt="Schachbot" class="fill" style="max-height:74vh;margin:0 auto;">
+          <div class="center" style="margin-top:4px;">
+            <span class="pill">&nbsp; <span class="censor school">school name</span> </span>
+            <p class="muted small" style="margin-top:14px;">
+              Armin&nbsp;Z<span class="censor">&nbsp;&nbsp;&nbsp;&nbsp;</span> &nbsp;&middot;&nbsp; Arthur&nbsp;P<span class="censor">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> &nbsp;&middot;&nbsp; Daniel&nbsp;S<span class="censor">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              &nbsp;
+            </p>
+          </div>
+        </div>
+        <aside class="notes">
+          Hi everyone, we are Armin, Arthur and Daniel, and this is Schachbot, our summer project.
+          In one sentence: it's a chess board that moves its own pieces. I'll start with the vision,
+          then Arthur takes the hardware, Armin the software, and I come back for the 3D design and the budget.
+        </aside>
+      </section>
+
+      
+
+      <!-- ============================================================
+           2 · FEATURES  (Daniel ~30s)
+           ============================================================ -->
+      <section data-sp="daniel" data-name="Daniel" data-topic="What it does" data-time="0:30">
+        <h2 class="lined center">What Schachbot can do</h2>
+        <div class="tiles" style="max-width:780px;margin:0 auto;">
+          <div class="tile"><span class="ico">👥</span><b>1&nbsp;vs&nbsp;1</b></div>
+          <div class="tile"><span class="ico">🌐</span><b>Player vs AI</b></div>
+          <div class="tile"><span class="ico">📴</span><b>Offline mode</b></div>
+          <div class="tile"><span class="ico">♟</span><b>Full rules</b></div>
+        </div>
+        <div class="flow" style="margin-top:26px;">
+          <div class="step"><span class="n">1</span><b>Type the move</b><p>Start &amp; target square on the keypad</p></div>
+          <div class="arrow">→</div>
+          <div class="step"><span class="n">2</span><b>Logic checks it</b><p>Legal move? Whose turn?</p></div>
+          <div class="arrow">→</div>
+          <div class="step"><span class="n">3</span><b>Gantry moves</b><p>Carriage slides under the piece</p></div>
+          <div class="arrow">→</div>
+          <div class="step"><span class="n">4</span><b>Magnet grabs</b><p>Electromagnet locks on &amp; drags it to the square</p></div>
+        </div>
+        <aside class="notes">
+          So what can it actually do? Three game modes: classic one-versus-one with two keypads; player
+          against the AI online, where we send the board to the Stockfish engine and get the best move back;
+          and an offline mode so it still works without WiFi. It knows the complete chess rules, including the
+          tricky ones like castling and en passant, and it catches illegal moves. The flow of a single move is
+          simple for the player: you type the start and target square, the logic checks it, and if it's legal the
+          gantry first slides under the piece, then the electromagnet grabs it and drags it across. That's the
+          whole magic. Arthur will now show you the hardware that makes it possible.
+        </aside>
+      </section>
+
+      <!-- ============================================================
+           3 SECTION DIVIDER · HARDWARE  (Arthur)
+           ============================================================ -->
+      <section data-sp="arthur" data-name="Arthur" data-topic="Hardware" data-time="2:00"
+               data-background-image="assets/img/mainboard-wiring.jpg" data-background-opacity="0.40"
+               data-background-color="#0a1018" data-transition="zoom">
+        <div class="divider is-centered scrim even">
+          <span class="kicker">Part 1 &middot; Arthur P<span class="censor">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+          <h1>The Hardware</h1>
+          <p class="lead">One ESP32, a hand-milled circuit board, and the electronics that turn a move into motion.</p>
+        </div>
+        <aside class="notes">
+          Thanks Daniel. I'm Arthur and I took care of the electronics, the heart of the whole system.
+          I'll walk you through the brain, the circuit board I designed and milled myself, and the building
+          blocks that drive the motors and the magnet.
+        </aside>
+      </section>
+
+      <!-- 4 · Hardware overview (Arthur) -->
+      <section data-sp="arthur" data-name="Arthur" data-topic="The system" data-time="2:00">
+        <h2 class="lined">Simple Electronics</h2>
+        <div class="grid-1-2">
+          <div class="col">
+            <ul class="lead" style="font-size:.82em;max-width:none;white-space:nowrap;">
+              <li>2&nbsp;&times; <strong>4&times;4 keypads</strong> for entering moves</li>
+              <li>A <strong>MOSFET</strong> switching the electromagnet</li>
+              <li><strong>Stop buttons</strong> for homing</li>
+            </ul>
+          </div>
+          <div class="col center">
+            <figure>
+              <img src="assets/img/system-annotated.jpg" alt="Annotated Schachbot system" class="shot">
+              <figcaption></figcaption>
+            </figure>
+          </div>
+        </div>
+        <aside class="notes">
+          Everything is controlled by a single ESP32. I chose it because it's powerful, cheap, and it has
+          built-in WiFi which we need for the online AI. Around it sit the parts the players interact with: two
+          four-by-four keypads where they type their moves, a MOSFET that switches the electromagnet on and off,
+          and a couple of stop buttons that the gantry uses to find its zero position. I'll come to the motors,
+          drivers and display in a moment. My job was to connect all of this reliably on one board.
+        </aside>
+      </section>
+
+      <!-- 5 · The milled PCB (Arthur) -->
+      <section data-sp="arthur" data-name="Arthur" data-topic="Self-milled PCB" data-time="2:00">
+        <h2 class="lined">A self-designed, self-milled PCB</h2>
+        <div class="grid-3">
+          <figure><img src="assets/img/img_docu/circuit_diagram_mainboard.jpeg" class="shot" style="max-height:46vh" alt="Mainboard schematic in EasyEDA"><figcaption style="font-size:.8em">1 · Schematic in EasyEDA</figcaption></figure>
+          <figure><img src="assets/img/pcb_better.jpeg" class="shot" style="max-height:46vh" alt="Single-sided PCB layout with hidden chess king"><figcaption style="font-size:.8em">2 · Single-sided routing</figcaption></figure>
+          <figure><img src="assets/img/pcb-board.jpg" class="shot" style="max-height:46vh" alt="The milled, populated PCB"><figcaption style="font-size:.8em">3 · The milled board</figcaption></figure>
+        </div>
+        <p class="center muted" style="margin-top:16px;">
+          From schematic → single-sided layout → milled in-house.
+          We even hid a little chess king in the copper. ♚
+        </p>
+        <aside class="notes">
+          This is the part I'm most proud of. I drew the complete schematic in EasyEDA, then turned it into a
+          single-sided layout, meaning all the copper tracks are on one side, which is much harder to route
+          because tracks can't cross. We milled the board ourselves here at school. One of our professors actually
+          called the layout "beautiful", and yes, we hid a tiny chess king in the copper as a signature. Designing
+          this board taught me a lot: we even had to redesign it a couple of times because we'd forgotten components.
+        </aside>
+      </section>
+
+      <!-- 6 · Building blocks (Arthur) -->
+      <section data-sp="arthur" data-name="Arthur" data-topic="Building blocks" data-time="2:00">
+        <h2 class="lined">Complex Electronics</h2>
+        <div class="grid-2" style="gap:16px;">
+          <div class="card"><span class="ico">🔌</span><h3>Power</h3><p class="small muted">A 24&nbsp;V supply powers the electromagnet; step-down converters drop it to 12&nbsp;V for the motors and 5&nbsp;V for the ESP32 and display.</p></div>
+          <div class="card"><span class="ico">⚙️</span><h3>Motor drivers</h3><p class="small muted">Two stepper drivers turn the ESP32's pulses into precise step-and-direction signals for the X and Y axis.</p></div>
+          <div class="card"><span class="ico">🌀</span><h3>12&nbsp;V stepper motors</h3><p class="small muted">Two 12&nbsp;V steppers spin the toothed belts that move the gantry across the board.</p></div>
+          <div class="card"><span class="ico">🖥️</span><h3>Display</h3><p class="small muted">A 3.5" SPI screen (480×320) shows whose turn it is and how the board is "seen".</p></div>
+        </div>
+        <aside class="notes">
+          Let me quickly walk through the power and motion side. Power comes from a 24-volt supply for the
+          electromagnet, and step-down converters create the lower voltages, 12 volts for the motors and 5 volts
+          for the ESP32 and display. The motor drivers translate the controller's pulses into precise
+          step-and-direction signals. Those drive two 12-volt stepper motors that pull the toothed belts and move
+          the gantry. And the display is a three-and-a-half inch SPI screen that mirrors the board. Every one of
+          these I tested individually before putting them on the final board.
+        </aside>
+      </section>
+
+      <!-- 7 · Electromagnet (Arthur) -->
+      <section data-sp="arthur" data-name="Arthur" data-topic="The magnet trick" data-time="2:00">
+        <h2 class="lined">The magnet trick</h2>
+        <div class="grid-2">
+          <div class="col vcenter">
+            <p class="lead small">Every piece has a small <strong>permanent magnet</strong> glued into its base.
+              Under the board, an <strong>electromagnet</strong> on the carriage switches on and the piece
+              <em>sticks to the square above it</em>, then it gets dragged along.</p>
+            <div class="card accent">
+              <h3>The tuning challenge</h3>
+              <p class="small muted">Strong enough to pull one piece, gentle enough <strong>not</strong>
+                to drag its neighbours.</p>
+              <p class="small"><span class="teal">Solved with ~5&nbsp;×&nbsp;~5&nbsp;cm squares and a small,
+                precisely sized coil.</span></p>
+            </div>
+          </div>
+          <div class="col center">
+            <figure>
+              <img src="assets/img/spulle_bette-photo.jpeg" class="shot" style="max-height:52vh" alt="Electromagnet coil on the carriage under the glass board">
+              <figcaption style="font-size:.8em">The coil on the carriage, right under the playing field</figcaption>
+            </figure>
+          </div>
+        </div>
+        <aside class="notes">
+          The clever bit is how pieces actually move. Each piece has a little permanent magnet in its 3D-printed
+          base. Under the board, the gantry carries an electromagnet. When we switch the coil on, the piece above
+          it sticks to the board and we can drag it across to any square. The real challenge was tuning the
+          strength: strong enough to pull the target piece, but weak enough that it doesn't drag the neighbouring
+          pieces along. We solved it with five-by-five centimetre squares and a small, precisely sized coil. And
+          that's the hardware, Armin will now explain the software that decides every move.
+        </aside>
+      </section>
+
+      <!-- ============================================================
+           8 SECTION DIVIDER · PROGRAM  (Armin)
+           ============================================================ -->
+      <section data-sp="armin" data-name="Armin" data-topic="The Program" data-time="2:00"
+               data-background-image="assets/img/code-bg.svg" data-background-opacity="0.85"
+               data-background-color="#08120c" data-transition="zoom">
+        <div class="divider is-centered scrim even">
+          <span class="kicker">Part 2 &middot; Armin Z<span class="censor">&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+          <h1>The Program</h1>
+          <p class="lead">1,837 lines of C++ on the ESP32, rules, motion, display and the chess engine, all working together.</p>
+        </div>
+        <aside class="notes">
+          Thanks Arthur. I'm Armin, the team leader, and I worked mostly on the software. Everything you see the
+          machine "decide" lives in 1,837 lines of C++ running on the ESP32. I'll show you the
+          structure and the four interesting jobs the code does, kept readable.
+        </aside>
+      </section>
+
+      <!-- 9 · Architecture + main loop (Armin) -->
+      <section data-sp="armin" data-name="Armin" data-topic="Architecture" data-time="2:00">
+        <h2 class="lined center">Built as clean, separate modules</h2>
+        <div style="max-width:720px;margin:0 auto;">
+          <ul class="lead" style="font-size:1em;max-width:none;">
+            <li><strong>Chess</strong>, the rule book &amp; board state</li>
+            <li><strong>Gantry</strong>, turns moves into motor steps</li>
+            <li><strong>Display</strong>, draws the live board</li>
+            <li><strong>Keypad</strong>, reads the two matrices</li>
+            <li><strong>StockfishAPI</strong>, talks to the engine</li>
+            <li><strong>WiFi</strong>, manages the connection</li>
+          </ul>
+          <p class="small muted" style="margin-top:18px;text-align:center;">Tied together by one
+            <strong>non-blocking main loop</strong>, so the motors keep moving while everything else runs.</p>
+        </div>
+        <aside class="notes">
+          I split the program into clean modules, each with one job: Chess holds the rules and the board, Gantry
+          turns a move into motor steps, Display draws the board, Keypad reads the matrices, StockfishAPI talks to
+          the engine, and WiFi manages the connection. The trick is the main loop on the right, it never blocks.
+          Every pass it nudges the motors, keeps WiFi alive, reads a key, and only when a full move is entered does
+          it validate it, apply it, redraw, and in AI mode play the computer's answer. Non-blocking means the
+          motors stay smooth while everything else happens.
+        </aside>
+      </section>
+
+      <!-- 10 · Rules engine (Armin) -->
+      <section data-sp="armin" data-name="Armin" data-topic="Rules engine" data-time="2:00">
+        <h2 class="lined">A complete chess rule-book</h2>
+        <div class="grid-2">
+          <div class="col vcenter">
+            <p class="lead small">For <em>every</em> move the engine asks four questions before anything moves:</p>
+            <ul class="tight">
+              <li>Is there a piece on the <strong>start square</strong>?</li>
+              <li>Is it <strong>your colour</strong> &amp; your turn?</li>
+              <li>Does it obey that piece's <strong>movement rule</strong>?</li>
+              <li>Would it leave your <strong>own king in check</strong>?</li>
+            </ul>
+          </div>
+          <div class="col vcenter">
+            <div class="card accent">
+              <h3>Special cases it gets right</h3>
+              <ul class="tight small">
+                <li><strong>Castling</strong> &amp; <strong>en&nbsp;passant</strong></li>
+                <li><strong>Pawn promotion</strong></li>
+                <li><strong>Check</strong> &amp; <strong>checkmate</strong> detection</li>
+                <li>Illegal input, <span class="teal">clear error &amp; retry</span></li>
+              </ul>
+              <p class="small muted" style="margin-top:8px">Every move is verified <em>before</em> a single motor turns.</p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          The biggest piece of software is the rule engine. For every move it checks: is there a piece on the
+          start square, is it your colour, does the move obey that specific piece's movement rule, and crucially
+          would it leave your own king in check. On top of that it handles the special cases, castling, en passant
+          and promotion. If anything is wrong, it returns a clear reason and the display tells the player to try
+          again, or announces check and checkmate. Writing this so it catches every illegal move took the most
+          testing of the whole project.
+        </aside>
+      </section>
+
+      <!-- 11 · Stockfish / FEN (Armin) -->
+      <section data-sp="armin" data-name="Armin" data-topic="Stockfish AI" data-time="2:00">
+        <h2 class="lined">Asking a grandmaster engine</h2>
+        <div class="grid-2">
+          <div class="col vcenter">
+            <p class="lead">To get a strong move, we translate our board into a <strong class="teal">FEN</strong>
+              string and send it to the public <strong>Stockfish</strong> API at <strong>depth&nbsp;15</strong>, it
+              replies with the best move, like <span class="teal">e7e5</span>.</p>
+            <p class="lead"><strong>No internet?</strong> We fall back to a random
+              legal move, so the game never stops.</p>
+          </div>
+          <div class="col vcenter">
+            <div class="card teal" style="border-color:rgba(79,182,166,.4)">
+              <span class="pseudo-label">what a FEN looks like</span>
+              <p style="font-family:var(--r-code-font);color:var(--sb-teal);font-size:.78em;word-break:break-all;line-height:1.6">
+                rnbqkbnr/pppppppp/8/8/<br>4P3/8/PPPP1PPP/<br>RNBQKBNR&nbsp;<span class="amber">w</span>
+              </p>
+              <p class="muted small" style="margin-top:8px">Each rank, piece-by-piece, plus whose turn it is, the
+                universal language every chess engine speaks.</p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          For a genuinely strong opponent we don't compute moves ourselves, we ask Stockfish, one of the best
+          chess engines in the world. The key is translation: we convert our internal board into a FEN string,
+          which is the standard text format every engine understands. We send it over HTTPS to the public Stockfish
+          API with a search depth of fifteen, and it replies with the best move, like "e7e5". If there's no
+          internet, we simply fall back to a random legal move, so the game keeps working. Converting the board to
+          FEN correctly, counting empty squares, lower-case for black, was a fiddly but satisfying bit of code.
+        </aside>
+      </section>
+
+      <!-- 12a · Gantry logic — diff & drag (Armin) -->
+      <section data-sp="armin" data-name="Armin" data-topic="Motion logic" data-time="2:00">
+        <h2 class="lined">Turning a move into motion</h2>
+        <div class="grid-2">
+          <div class="col vcenter">
+            <p class="lead small">The code keeps two pictures of the board, the <strong>target</strong> (how it
+              should look) and the <strong>real</strong> one, then drags pieces until they match.</p>
+          </div>
+          <div class="col vcenter">
+            <div class="card accent">
+              <h3>How it closes the gap</h3>
+              <ul class="tight small">
+                <li>Scan all <strong>64 squares</strong>, find every difference</li>
+                <li><strong>Captures first</strong>, taken piece → <span class="teal">graveyard</span></li>
+                <li>Then drag each piece to its <strong>new square</strong></li>
+                <li>Repeat until <strong>real == target</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          How a move becomes motion. The code keeps two boards: the target, how it should look, and the real one.
+          It scans all sixty-four squares, finds what's different, and drags pieces until reality matches the
+          target. Captures are handled first: the taken piece is dragged off to a graveyard on the side before the
+          capturing piece moves in. On the next slide I'll show the clever part, how it avoids knocking pieces over.
+        </aside>
+      </section>
+
+      <!-- 12b · Gantry logic — the weaving path (Armin) -->
+      <section data-sp="armin" data-name="Armin" data-topic="Motion logic" data-time="2:00">
+        <h2 class="lined">Weaving between the pieces</h2>
+        <div class="grid-1-2">
+          <div class="col vcenter">
+            <p class="lead">Instead of pushing a piece straight through the centre of other squares, the
+              magnet steps <strong>half a square onto the grid lines</strong> and travels along them, so it
+              <em>never knocks a neighbour over</em>.</p>
+            <p class="lead">Calibrating those steps so the piece always lands <strong>dead-centre</strong>
+              took real effort.</p>
+          </div>
+          <div class="col center">
+            <figure>
+              <img src="assets/img/gantry-path.svg" class="fill" style="max-height:56vh" alt="Gantry weaving path">
+            </figure>
+          </div>
+        </div>
+        <aside class="notes">
+          And the clever detail: instead of pushing a piece straight through the centre of other squares, the magnet
+          steps half a square onto the grid lines and weaves between the pieces, so it never knocks anything over.
+          Calibrating those steps so the piece always lands dead-centre took real effort. That's the software, back
+          to Daniel for the 3D design.
+        </aside>
+      </section>
+
+      <!-- ============================================================
+           13 SECTION DIVIDER · 3D DESIGN  (Daniel)
+           ============================================================ -->
+      <section data-sp="daniel" data-name="Daniel" data-topic="3D Design" data-time="2:00"
+               data-background-image="assets/img/slicer-supports.jpg" data-background-opacity="0.30"
+               data-background-color="#0d0a08" data-transition="zoom">
+        <div class="divider is-centered scrim even">
+          <span class="kicker">Part 3 &middot; Daniel S<span class="censor">&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+          <h1>3D Design &amp; Build</h1>
+          <p class="lead">The mechanical heart: a self-built 2D gantry and dozens of custom 3D-printed parts.</p>
+        </div>
+        <aside class="notes">
+          Thanks Armin. So all that software needs a body to move, and that was my main technical job: designing
+          and building the 2D gantry, the casing and the printed parts. Let me show you the mechanics.
+        </aside>
+      </section>
+
+      <!-- 14 · The gantry parts (Daniel) -->
+      <section data-sp="daniel" data-name="Daniel" data-topic="The 2D gantry" data-time="2:00">
+        <h2 class="lined">A 2D gantry, designed from scratch</h2>
+        <div class="grid-1-2">
+          <div class="col">
+            <ul class=" lead">
+              <li>X &amp; Y <strong>motor + idler mounts</strong></li>
+              <li>A stiff <strong>transition plate</strong> linking both axes</li>
+              <li>A <strong>carriage</strong> carrying the electromagnet</li>
+            </ul>
+          </div>
+          <div class="col center">
+            <figure><img src="assets/img/cad-gantry-full.png" class="cad" style="max-height:250px;max-width:100%" alt="Full 2D gantry CAD"><figcaption>Complete 2D gantry</figcaption></figure>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-top:10px;gap:30px;justify-items:center;align-items:start;">
+          <figure><img src="assets/img/cad-xmount-motor.png" class="cad" style="max-height:95px" alt="X-axis motor mount"><figcaption>X-axis motor mount</figcaption></figure>
+          <figure><img src="assets/img/cad-transition.png" class="cad" style="max-height:95px" alt="Transition plate"><figcaption>Transition plate</figcaption></figure>
+          <figure><img src="assets/img/cad-ymount-motor.png" class="cad" style="max-height:95px" alt="Y-axis motor mount"><figcaption>Y-axis motor mount</figcaption></figure>
+        </div>
+        <aside class="notes">
+          The gantry is the mechanical heart. It's the same principle as a pen-plotter or a 3D-printer: two stepper
+          motors with toothed belts move a carriage in X and Y, so the magnet can reach any of the sixty-four
+          squares from underneath. I designed it completely from scratch in CAD. Every single motor, every pulley
+          and the carriage itself sits in a custom 3D-printed bracket that I modelled, the motor mounts, the idler
+          mounts, a stiff transition plate that links the two axes, and the carriage that carries the magnet. The
+          initial gantry was working in under five weeks, which we were really proud of.
+        </aside>
+      </section>
+
+      <!-- 15 · Casing (Daniel) -->
+      <section data-sp="daniel" data-name="Daniel" data-topic="Casing & frame" data-time="2:00">
+        <h2 class="lined">Casing, frame &amp; the playing field</h2>
+        <div class="grid-3" style="gap:54px;align-items:center;">
+          <figure><img src="assets/img/cad-display-front.png" class="cad" style="max-height:40vh" alt="Display case"><figcaption>Tilted display stand</figcaption></figure>
+          <figure><img src="assets/img/cad-keymatrix-holder.png" class="cad" style="max-height:40vh" alt="Keypad holder"><figcaption>Keypad holder</figcaption></figure>
+          <figure><img src="assets/img/cad-pillar.png" class="cad" style="max-height:40vh" alt="Support pillar"><figcaption>Support pillar (×10)</figcaption></figure>
+        </div>
+        <aside class="notes">
+          Around the gantry I designed all the casing. A two-part case holds the display at a comfortable viewing
+          angle for both players, each keypad gets its own angled holder, and ten hollow pillars raise the
+          plexiglass playing field above the gantry, that gap is exactly where the magnet travels. The casing and
+          the clear playing field came out really clean once assembled; that's one of the things I'm happiest with.
+        </aside>
+      </section>
+
+      <!-- 16 · Design math + tools (Daniel) -->
+      <section data-sp="daniel" data-name="Daniel" data-topic="Precision & printing" data-time="2:00">
+        <div class="grid-2">
+          <div class="col">
+            <h2 class="lined">Precision &amp; a lot of printing</h2>
+            <p class="small muted">Every square had to line up perfectly, so the design started with the
+              <strong>geometry of the board</strong>, square size, frame, and the exact <em>steps-per-field</em>
+              the motors need.</p>
+            <ul class="tight small">
+              <li>Designed in <strong>Onshape &amp; Fusion&nbsp;360</strong></li>
+              <li>Sliced in <strong>Bambu Studio</strong>, printed on a <strong>Bambu Lab A1</strong></li>
+              <li>Big parts took <strong>7+ hours</strong> each to print</li>
+            </ul>
+          </div>
+          <div class="col">
+            <div class="grid-2" style="gap:10px;">
+              <img src="assets/img/board.jpeg" class="shot" style="max-height:190px" alt="The wooden playing field">
+              <img src="assets/img/slicer-overview.jpg" class="shot" style="max-height:190px" alt="Bambu slicer">
+              <img src="assets/img/mapping.jpeg" class="shot" style="max-height:190px" alt="Board coordinate mapping (A-D / 1-4)">
+              <img src="assets/img/bambu_a1_drucker.jpeg" class="shot" style="max-height:190px" alt="Bambu Lab A1 3D printer">
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Precision was everything: if the squares don't line up, the magnet grabs the wrong piece. So I started
+          with the pure geometry, the square size, the frame, and the exact number of motor steps per field. I
+          designed in Onshape and Fusion 360, sliced in Bambu Studio and printed on a Bambu Lab A1. Some of the big
+          parts took over seven hours each to print, so planning what to print and when really mattered. Getting the
+          tolerances right was the hardest mechanical lesson of the project. Now let me finish with the numbers.
+        </aside>
+      </section>
+
+      <!-- ============================================================
+           17 · FINANCES  (Daniel ~30s, part 1)
+           ============================================================ -->
+      <section data-sp="daniel" data-name="Daniel" data-topic="Budget" data-time="0:30">
+        <h2 class="lined">What it cost</h2>
+        <div class="grid-1-2">
+          <div class="col vcenter">
+            <div class="kpis" style="grid-template-columns:1fr;gap:14px;">
+              <div class="kpi"><div class="num">€413.70</div><div class="lbl">total spent</div></div>
+              <div class="kpi"><div class="num">€300</div><div class="lbl">original budget</div></div>
+              <div class="kpi"><div class="num copper" style="color:var(--sb-copper)">+38%</div><div class="lbl">over budget</div></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+          </div>
+        </div>
+        <aside class="notes">
+          A quick word on money, because I managed the budget. In total we spent about four hundred and fourteen
+          euros. Our original plan was three hundred, so we went roughly thirty-eight percent over. The chart shows
+          where it went, the gantry mechanics and the motors were the biggest chunks, followed by the 3D-printing
+          and the display. The honest lesson here is to choose your components carefully before buying: a few wrong
+          orders cost us extra money and time.
+        </aside>
+      </section>
+
+      <!-- ============================================================
+           18 · CONCLUSION  (Daniel ~30s, part 2)
+           ============================================================ -->
+      <section data-sp="daniel" data-name="Daniel" data-topic="Wrap-up" data-time="0:30"
+               data-background-image="assets/img/build-overview.jpg" data-background-opacity="0.20"
+               data-background-color="#0d0a08">
+        <h2 class="lined center">What we take away</h2>
+        <div class="grid-2" style="align-items:stretch;">
+          <div class="col">
+            <div class="card" style="padding:20px 24px;height:100%">
+              <h3 class="amber" style="margin-bottom:12px;font-size:1.35em">What went well</h3>
+              <ul class="tl" style="margin:0;font-size:1.22em">
+                <li>Working 2D gantry in <strong>under 5 weeks</strong></li>
+                <li>A <strong>“beautiful”</strong> single-sided milled PCB</li>
+                <li>Clean casing &amp; plexiglass field</li>
+                <li>Robust, modular software architecture</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card" style="padding:20px 24px;height:100%">
+              <h3 class="copper" style="color:var(--sb-copper);margin-bottom:12px;font-size:1.35em">What we learned</h3>
+              <ul class="tl bad" style="margin:0;font-size:1.22em">
+                <li>Decide on the <strong>materials &amp; technology</strong> at the start</li>
+                <li>Mechanical tolerances need calibration</li>
+                <li>Tuning the magnet was harder than expected</li>
+                <li>Clear roles &amp; communication matter</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          To wrap up, what we're proud of: we had a working gantry in under five weeks, a milled circuit board a
+          professor literally called beautiful, a clean case, and a solid software architecture. And what we
+          learned: decide on the materials and technology right at the start, respect mechanical tolerances, the magnet tuning
+          was trickier than we thought, and clear roles in a team really matter. Thank you for listening, we're
+          happy to take any questions, and afterwards you're welcome to come and play a game against Schachbot.
+        </aside>
+      </section>
+
+      <!-- ============================================================
+           19 · LIVE DEMO  (full-bleed 16:9 video, auto-plays with audio,
+           scrubbable via the controls bar)
+           ============================================================ -->
+      <section data-sp="daniel" data-name="Schachbot" data-topic="Demo" data-time="0:30"
+               data-background-color="#000" id="demo-slide">
+        <video id="demo-video" class="demo-video" playsinline preload="auto" controls
+               src="assets/video/demo_video.mp4"></video>
+        <aside class="notes">
+          The full Schachbot demo. It plays automatically with sound when you reach this slide, and you can
+          drag the progress bar to skip to any point (e.g. minute 2). And that's Schachbot, thanks for watching!
+        </aside>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="assets/vendor/reveal.js"></script>
+  <script src="assets/vendor/plugin/notes.js"></script>
+  <script src="assets/vendor/plugin/highlight.js"></script>
+  <script src="assets/vendor/plugin/zoom.js"></script>
+  <script src="assets/vendor/plugin/search.js"></script>
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script src="assets/js/deck.js"></script>
+</body>
+</html>
