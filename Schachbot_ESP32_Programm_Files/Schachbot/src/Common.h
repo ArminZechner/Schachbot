@@ -13,6 +13,10 @@
 #define FRIEDHOF_Y 8
 #define UNDEF_FRIEDHOF -2
 
+enum GAMEMODE{
+	roboter,
+	mensch
+};
 struct Koordinate{
     int8_t x;
     int8_t y;

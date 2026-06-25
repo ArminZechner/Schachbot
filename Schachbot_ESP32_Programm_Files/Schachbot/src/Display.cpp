@@ -139,9 +139,17 @@ void Display::setChessBoard(char soll_schachbrett[SCHACHBRETT_SIZE_Y][SCHACHBRET
 void Display::setMessage(String message){
         this->message = message;
 }
+void Display::setGameMode(bool gameMode){
+    this->gameMode = gameMode;
+}
 void Display::printInformationBoard(){
     displayMode = DISPLAY_MODE::infoBoard;
+    if(gameMode == GAMEMODE::roboter){
     tft.fillScreen(TFT_GREEN);
+    }
+    else{
+    tft.fillScreen(TFT_SKYBLUE);
+    }
     tft.setTextColor(TFT_WHITE);
     tft.setTextSize(10);
 
@@ -178,6 +186,12 @@ int getPieceWithOutColor(int p) {
     if (p == e_figuren::empty) {
         return empty;
     }
+    // Ein umgewandelter Bauer wird als Dame dargestellt (Koenigin-Bitmap).
+    // Die richtige Farbe kommt weiterhin aus getWhiteOrBlack().
+    if (p == e_figuren::whitePawnQueen ||
+        p == e_figuren::blackPawnQueen) {
+        return e_figuren::whiteQueen;
+    }
     if (p >= e_figuren::whitePawn &&
         p <= e_figuren::whiteKing) {
         return p;
@@ -201,7 +215,7 @@ void Display::printChessfield(){
             tft.drawBitmap(x*FIELD_SIZE_X, y*FIELD_SIZE_Y, epd_bitmap_allArray[getPieceWithOutColor(soll_schachbrettFriedhof[0][x][y])], 40, 40, getWhiteOrBlack(soll_schachbrettFriedhof[0][x][y]) ? TFT_BLACK : TFT_WHITE);
             }
             if(soll_schachbrettFriedhof[1][x][y] != e_figuren::empty){
-            tft.drawBitmap(x*FIELD_SIZE_X, y*FIELD_SIZE_Y, epd_bitmap_allArray[getPieceWithOutColor(soll_schachbrettFriedhof[1][x][y])], 40, 40, getWhiteOrBlack(soll_schachbrettFriedhof[1][x][y]) ? TFT_BLACK : TFT_WHITE);
+            tft.drawBitmap((x+10)*FIELD_SIZE_X, y*FIELD_SIZE_Y, epd_bitmap_allArray[getPieceWithOutColor(soll_schachbrettFriedhof[1][x][y])], 40, 40, getWhiteOrBlack(soll_schachbrettFriedhof[1][x][y]) ? TFT_BLACK : TFT_WHITE);
             }
             schachMuster = !schachMuster;
         }

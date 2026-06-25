@@ -14,6 +14,7 @@ class Display{
     void printChessfield();
     void setMessage(String message);
     void printInformationBoard();
+    void setGameMode(bool gameMode);
     void setChessBoard(char soll_schachbrett[SCHACHBRETT_SIZE_Y][SCHACHBRETT_SIZE_Y], char soll_schachbrettFriedhof[2][SCHACHBRETT_SCHLAGBREITE][SCHACHBRETT_SIZE_Y]);
     int displayMode = -1;
     private:
@@ -21,6 +22,7 @@ class Display{
 	char soll_schachbrettFriedhof[2][SCHACHBRETT_SCHLAGBREITE][SCHACHBRETT_SIZE_Y];
     int getWhiteOrBlack(int figur);
     TFT_eSPI tft;
+    bool gameMode = 0;
     String message;
     bool inv = true;
     Koordinate selectedFields[2];

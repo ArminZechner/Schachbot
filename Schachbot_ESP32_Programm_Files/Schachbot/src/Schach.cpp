@@ -314,37 +314,35 @@ MoveInformation Schach::queenCheck(int x, int y, int destX, int destY) {
     info.error = "Die Dame darf\nnicht so fahren";
     return info;
 }
-bool Schach::checkIfAreaIsEmpty(int x, int y, int destX, int destY) {
-    for (int yy = y; yy < (unsigned int)(destY - y); yy++) {
-        for (int xx = x; xx < (unsigned int)(destY - x); xx++) {
-            if (schachbrett.hauptSchachbrett[xx][yy] != e_figuren::empty) {
-                return false;
-            }
+bool Schach::checkIfAreaIsEmpty(int x, int destX, int y) {
+    for(int xx = x; xx <= destX; xx++) {
+        if(schachbrett.hauptSchachbrett[xx][y] != e_figuren::empty) {
+            return false;
         }
     }
     return true;
 }
 MoveInformation Schach::kingCheck(int x, int y, int destX, int destY) {
     MoveInformation info;
-    if (colorOnTurn == Color::white && (x == 4 && y == 7) && (destX == 2 && destY == 7) && rochade[Color::white][DIRECTION::left] == ROCHADE_POSSIBLE::possible && checkIfAreaIsEmpty(1, 7, 3, 7)) {
+    if (colorOnTurn == Color::white && (x == 4 && y == 7) && (destX == 2 && destY == 7) && rochade[Color::white][DIRECTION::left] == ROCHADE_POSSIBLE::possible && checkIfAreaIsEmpty(1, 3, 7)) {
         rochade[Color::white][DIRECTION::left] = ROCHADE_POSSIBLE::blocked;
         info.zusatzFigur_start = { 0, 7};
         info.zusatzFigur_ende = { 3, 7 };
         return info;
     }
-    else if (colorOnTurn == Color::white && (x == 4 && y == 7) && (destX == 6 && destY == 7) && rochade[Color::white][DIRECTION::right] == ROCHADE_POSSIBLE::possible && checkIfAreaIsEmpty(5, 7, 6, 7)) {
+    else if (colorOnTurn == Color::white && (x == 4 && y == 7) && (destX == 6 && destY == 7) && rochade[Color::white][DIRECTION::right] == ROCHADE_POSSIBLE::possible && checkIfAreaIsEmpty(5, 6, 7)) {
         rochade[Color::white][DIRECTION::right] = ROCHADE_POSSIBLE::blocked;
         info.zusatzFigur_start = { 7, 7 };
         info.zusatzFigur_ende = { 5, 7 };
         return info;
     }
-    if (colorOnTurn == Color::black && (x == 4 && y == 0) && (destX == 6 && destY == 0) && rochade[Color::black][DIRECTION::left] == ROCHADE_POSSIBLE::possible && checkIfAreaIsEmpty(5, 0, 6, 0)) {
+    if (colorOnTurn == Color::black && (x == 4 && y == 0) && (destX == 6 && destY == 0) && rochade[Color::black][DIRECTION::left] == ROCHADE_POSSIBLE::possible && checkIfAreaIsEmpty(5, 6, 0)) {
         rochade[Color::black][DIRECTION::left] = ROCHADE_POSSIBLE::blocked;
         info.zusatzFigur_start = { 7, 0 };
         info.zusatzFigur_ende = { 5, 0 };
         return info;
     }
-    else if (colorOnTurn == Color::black && (x == 4 && y == 0) && (destX == 2 && destY == 0) && rochade[Color::black][DIRECTION::right] == ROCHADE_POSSIBLE::possible && checkIfAreaIsEmpty(1, 0, 3, 0)) {
+    else if (colorOnTurn == Color::black && (x == 4 && y == 0) && (destX == 2 && destY == 0) && rochade[Color::black][DIRECTION::right] == ROCHADE_POSSIBLE::possible && checkIfAreaIsEmpty(1, 3, 0)) {
         rochade[Color::black][DIRECTION::right] = ROCHADE_POSSIBLE::blocked;
         info.zusatzFigur_start = { 0, 0 };
         info.zusatzFigur_ende = { 3, 0 };
@@ -501,7 +499,6 @@ bool Schach::checkIfKingIsCheckMate() {
     return true;
 }
 void Schach::gegnerischerZug() {
-    Serial.println("SUCHE ZUG");
     randomSeed(millis());
     int xStart = random(8);
     int yStart = random(8);

@@ -12,8 +12,8 @@ Gantry::Gantry(){
 
 }
 void Gantry::init(){
-    position.x = 0;
-    position.y = 0;
+    position.x = -1;
+    position.y = -1;
     pinMode(pinSpule, OUTPUT);
     digitalWrite(pinSpule, LOW);
 
@@ -21,16 +21,39 @@ void Gantry::init(){
     pinMode(pinButtonY, INPUT);
 
     stepperX.setMaxSpeed(20000.0);
-    stepperX.setAcceleration(20000.0);
+    stepperX.setAcceleration(5000.0);
     stepperX.setCurrentPosition(0);
 
     stepperY.setMaxSpeed(20000.0);
-    stepperY.setAcceleration(20000.0);
+    stepperY.setAcceleration(5000.0);
     stepperY.setCurrentPosition(0);
-
+    stepperX.disableOutputs();
+    stepperY.disableOutputs();
     bewegungsAblauf.isWorking = false;
     bewegungsAblauf.moveToZero = false;
     bewegungsAblauf.ablaufState = ABLAUF::schritt0;
+    for (int x = 0; x < FRIEDHOF_X; x++) {
+        for (int y = 0; y < FRIEDHOF_Y; y++) {
+            ist_schachbrettFriedhof[DIRECTION::left][x][y] = e_figuren::empty;
+            ist_schachbrettFriedhof[DIRECTION::right][x][y] = e_figuren::empty;
+        }
+    }
+    for (int x = 0; x < HAUPT_SCHACHBRETT_X; x++) {
+        for (int y = 0; y < HAUPT_SCHACHBRETT_Y; y++) {
+            ist_schachbrett[x][y] = init_Liste[y][x];
+        }
+    }
+    for (int x = 0; x < FRIEDHOF_X; x++) {
+        for (int y = 0; y < FRIEDHOF_Y; y++) {
+            soll_schachbrettFriedhof[DIRECTION::left][x][y] = e_figuren::empty;
+            soll_schachbrettFriedhof[DIRECTION::right][x][y] = e_figuren::empty;
+        }
+    }
+    for (int x = 0; x < HAUPT_SCHACHBRETT_X; x++) {
+        for (int y = 0; y < HAUPT_SCHACHBRETT_Y; y++) {
+            soll_schachbrett[x][y] = init_Liste[y][x];
+        }
+    }
 
 if (Serial.availableForWrite()) {
     Serial.println("Gantry startet");
@@ -41,7 +64,52 @@ void Gantry::setChessBoard(char soll_schachbrett[SCHACHBRETT_SIZE_Y][SCHACHBRETT
     memcpy(this->soll_schachbrett, soll_schachbrett, sizeof(this->soll_schachbrett));
     memcpy(this->soll_schachbrettFriedhof, soll_schachbrettFriedhof, sizeof(this->soll_schachbrettFriedhof));
 }
+int8_t Gantry::getField(Koordinate pos)
+{
+    if(pos.x >= 2 && pos.x < 10){
+        return ist_schachbrett[pos.x - 2][pos.y];
+    }
+
+    if(pos.x < 2){
+        return ist_schachbrettFriedhof[0][pos.x][pos.y];
+    }
+
+    return ist_schachbrettFriedhof[1][pos.x - 10][pos.y];
+}
+
+void Gantry::setField(Koordinate pos, int8_t figur)
+{
+    if(pos.x >= 2 && pos.x < 10){
+        ist_schachbrett[pos.x - 2][pos.y] = figur;
+        return;
+    }
+
+    if(pos.x < 2){
+        ist_schachbrettFriedhof[0][pos.x][pos.y] = figur;
+        return;
+    }
+
+    ist_schachbrettFriedhof[1][pos.x - 10][pos.y] = figur;
+}
+void Gantry::updateChessBoard()
+{
+    Koordinate start = bewegungsAblauf.start;
+    Koordinate ende  = bewegungsAblauf.ende;
+    position = ende;
+    start.y = 7 - start.y;
+    ende.y  = 7 - ende.y;
+    int8_t figur = getField(start);
+    setField(start, e_figuren::empty);
+    setField(ende, figur);
+}
 void Gantry::moveToZero(){
+    stepperX.enableOutputs();
+    stepperY.enableOutputs();
+    stepperX.setMaxSpeed(90000.0);
+    stepperX.setAcceleration(10000.0);
+
+    stepperY.setMaxSpeed(40000.0);
+    stepperY.setAcceleration(40000.0);
     bewegungsAblauf.moveToZero = true;
     bewegungsAblauf.isWorking = true;
     bewegungsAblauf.ablaufState = 100;
@@ -57,7 +125,6 @@ bool Gantry::isAtZero(){
 void Gantry::move(){
     stepperX.run();
     stepperY.run();
-
     if(bewegungsAblauf.moveToZero == true && bewegungsAblauf.isWorking == true){
         if(digitalRead(pinButtonX) == HIGH){
             stepperX.stop();
@@ -75,24 +142,33 @@ void Gantry::move(){
             position.x = 11;
             position.y = 0;
             Serial.println("Is at Zero");
+            stepperX.disableOutputs();
+            stepperY.disableOutputs();
         }
         return;
     }
-
-    if(abs(stepperX.distanceToGo()) < 1 && abs(stepperY.distanceToGo()) < 1 && bewegungsAblauf.isWorking == true){
+    if(bewegungsAblauf.startgoToStart_x == true){
+        stepperX.setMaxSpeed(40000.0);
+        stepperX.setAcceleration(40000.0);
+        stepperX.move(bewegungsAblauf.goToStart_x);
+        bewegungsAblauf.startgoToStart_x = false;
+        digitalWrite(pinSpule, LOW);
+    }
+    if(bewegungsAblauf.startgoToStart_y == true){
+    stepperY.setMaxSpeed(40000.0);
+    stepperY.setAcceleration(40000.0);
+        stepperY.move(bewegungsAblauf.goToStart_y);
+        bewegungsAblauf.startgoToStart_y = false;
+        digitalWrite(pinSpule, LOW);
+    }
+    if((abs(stepperX.distanceToGo()) < 1 && abs(stepperY.distanceToGo()) < 1 && bewegungsAblauf.isWorking == true)){
         switch(bewegungsAblauf.ablaufState){
-            case ABLAUF::goToStart_x:
-                digitalWrite(pinSpule, HIGH);
-                bewegungsAblauf.XOrY_goToStart_x == x ? stepperX.move(bewegungsAblauf.goToStart_x) : stepperY.move(-bewegungsAblauf.goToStart_x);
-                bewegungsAblauf.ablaufState = goToStart_y;
-            break;
-
-            case ABLAUF::goToStart_y:
-                bewegungsAblauf.XOrY_goToStart_y == x ? stepperX.move(bewegungsAblauf.goToStart_y) : stepperY.move(-bewegungsAblauf.goToStart_y);
-                bewegungsAblauf.ablaufState = schritt0;
-            break;
-
             case ABLAUF::schritt0:
+                stepperX.setMaxSpeed(20000.0);
+                stepperX.setAcceleration(20000.0);
+
+                stepperY.setMaxSpeed(20000.0);
+                stepperY.setAcceleration(20000.0);
                 digitalWrite(pinSpule, HIGH);
                 bewegungsAblauf.XOrY_Schritt0 == x ? stepperX.move(bewegungsAblauf.schritt0) : stepperY.move(-bewegungsAblauf.schritt0);
                 bewegungsAblauf.ablaufState = schritt1;
@@ -109,88 +185,182 @@ void Gantry::move(){
             break;
 
             case ABLAUF::schritt3:
-                digitalWrite(pinSpule, LOW);
                 bewegungsAblauf.XOrY_Schritt3 == x ? stepperX.move(bewegungsAblauf.schritt3) : stepperY.move(-bewegungsAblauf.schritt3);
                 bewegungsAblauf.ablaufState = finish;
             break;
 
             case ABLAUF::finish:
+                digitalWrite(pinSpule, LOW);
                 if(!stepperX.isRunning() && !stepperY.isRunning()){
+                    updateChessBoard();
                     bewegungsAblauf.isWorking = false;
                 }
+                stepperX.disableOutputs();
+                stepperY.disableOutputs();
             break;
         }
     }
 }
-Koordinate Gantry::searchField(int8_t soll_figur, int8_t ist_figur){
-    for(int y = 0; y < 8; y++){
-        for(int x = 0; x < 8; x++){
-            if(soll_schachbrett[x][y] == soll_figur && ist_schachbrett[x][y] == ist_figur){
-                return (Koordinate){x + 2, y};
-            }
-        }
+// Ein zur Dame umgewandelter Bauer ist physisch immer noch derselbe
+// Spielstein wie ein normaler Bauer (es gibt keine extra Dame-Figur).
+// Fuer die Gantry zaehlt nur der physische Stein, deshalb werden
+// pawnQueen und pawn beim Suchen gleich behandelt.
+static int8_t normalizeFigur(int8_t figur)
+{
+    if(figur == e_figuren::whitePawnQueen){
+        return e_figuren::whitePawn;
     }
-    for(int y = 0; y < 8; y++){
-        for(int x = 0; x < 2; x++){
-            if(soll_schachbrettFriedhof[0][x][y] == soll_figur && ist_schachbrettFriedhof[0][x][y] == ist_figur){
-                return (Koordinate){x, y};
-            }
-            if(soll_schachbrettFriedhof[1][x][y] == soll_figur && ist_schachbrettFriedhof[1][x][y] == ist_figur){
-                return (Koordinate){x + 10, y};
-            }
-        }
+    if(figur == e_figuren::blackPawnQueen){
+        return e_figuren::blackPawn;
     }
+    return figur;
 }
-void Gantry::searchAvailableMove(){
-    //HAUPTSCHACHBRETT
-    for(int y = 0; y < 8; y++){
-        for(int x = 0; x < 8; x++){
-            if(soll_schachbrett[x][y] != ist_schachbrett[x][y]){
-                if(soll_schachbrett[x][y] == e_figuren::empty){
-                    goTo(searchField(soll_schachbrett[x][y], ist_schachbrett[x][y]), (Koordinate){x+2, y});
-                    return;
-                }
-                if(ist_schachbrett[x][y] == e_figuren::empty){
-                    goTo((Koordinate){x+2, y}, searchField(soll_schachbrett[x][y], ist_schachbrett[x][y]));
-                    return;
+Koordinate Gantry::searchField(int8_t soll_figur, int8_t ist_figur, Koordinate ausschlussFeld)
+{
+    for(int x = 0; x < 8; x++){
+        for(int y = 0; y < 8; y++){
+
+            if(
+                normalizeFigur(soll_schachbrett[x][y]) != normalizeFigur(ist_schachbrett[x][y]) &&
+                normalizeFigur(soll_schachbrett[x][y]) == normalizeFigur(soll_figur) &&
+                normalizeFigur(ist_schachbrett[x][y]) == normalizeFigur(ist_figur) &&
+                !(ausschlussFeld.x == (x + 2) &&
+                  ausschlussFeld.y == y)
+            ){
+                return {x + 2, y};
+            }
+        }
+    }
+
+    return {-1, -1};
+}
+Koordinate Gantry::searchFriedhofField(int8_t soll_figur, int8_t ist_figur)
+{
+    for(int seite = 0; seite < 2; seite++){
+        for(int x = 0; x < FRIEDHOF_X; x++){
+            for(int y = 0; y < FRIEDHOF_Y; y++){
+
+                if(
+                    normalizeFigur(soll_schachbrettFriedhof[seite][x][y]) !=
+                    normalizeFigur(ist_schachbrettFriedhof[seite][x][y]) &&
+
+                    normalizeFigur(soll_schachbrettFriedhof[seite][x][y]) == normalizeFigur(soll_figur) &&
+                    normalizeFigur(ist_schachbrettFriedhof[seite][x][y]) == normalizeFigur(ist_figur)
+                ){
+                    if(seite == 0){
+                        return {x, y};
+                    }
+                    else{
+                        return {10 + x, y};
+                    }
                 }
             }
         }
-    //FRIEDHOF
-    for(int y = 0; y < 8; y++){
-        for(int x = 0; x < 2; x++){
-            if(soll_schachbrettFriedhof[0][x][y] != ist_schachbrettFriedhof[0][x][y]){
-                if(soll_schachbrettFriedhof[0][x][y] == e_figuren::empty){
-                    goTo(searchField(soll_schachbrettFriedhof[0][x][y], ist_schachbrettFriedhof[0][x][y]), (Koordinate){x, y});
+    }
+
+    return {-1, -1};
+}
+void Gantry::searchAvailableMove()
+{
+    for(int x = 0; x < 8; x++){
+        for(int y = 0; y < 8; y++){
+
+            // pawnQueen (soll) und pawn (ist) gelten als derselbe Stein,
+            // damit eine fertige Umwandlung nicht erneut "korrigiert" wird.
+            if(normalizeFigur(soll_schachbrett[x][y]) == normalizeFigur(ist_schachbrett[x][y])){
+                continue;
+            }
+
+            // ==========================================================
+            // Auf diesem Feld steht eine Figur, die hier nicht hingehört
+            //   - soll == empty  -> Figur muss nur weg (normaler Zug)
+            //   - soll != empty  -> Figur muss geschlagen werden:
+            //     sie kommt zuerst auf den Friedhof, damit die
+            //     schlagende Figur danach auf dieses Feld ziehen kann
+            // ==========================================================
+            if(ist_schachbrett[x][y] != e_figuren::empty)
+            {
+                Koordinate start = {x + 2, y};
+
+                // Gibt es ein Zielfeld auf dem Brett?
+                Koordinate ziel =
+                    searchField(
+                        ist_schachbrett[x][y],
+                        e_figuren::empty,
+                        start
+                    );
+
+                if(ziel.x != -1)
+                {
+                    // Normaler Zug
+                    start.y = 7 - start.y;
+                    ziel.y  = 7 - ziel.y;
+
+                    goTo(start, ziel);
                     return;
                 }
-                if(ist_schachbrettFriedhof[0][x][y] == e_figuren::empty){
-                    goTo((Koordinate){x, y}, searchField(soll_schachbrettFriedhof[0][x][y], ist_schachbrettFriedhof[0][x][y]));
+
+                // Keine Zielposition gefunden -> Friedhof
+                ziel =
+                    searchFriedhofField(
+                        ist_schachbrett[x][y],
+                        e_figuren::empty
+                    );
+
+                if(ziel.x != -1)
+                {
+                    start.y = 7 - start.y;
+                    ziel.y  = 7 - ziel.y;
+
+                    goTo(start, ziel);
                     return;
                 }
             }
-            else if(soll_schachbrettFriedhof[1][x][y] != ist_schachbrettFriedhof[1][x][y]){
-                if(soll_schachbrettFriedhof[1][x][y] == e_figuren::empty){
-                    goTo(searchField(soll_schachbrettFriedhof[1][x][y], ist_schachbrettFriedhof[1][x][y]), (Koordinate){x+10, y});
-                    return;
-                }
-                if(ist_schachbrettFriedhof[1][x][y] == e_figuren::empty){
-                    goTo((Koordinate){x+10, y}, searchField(soll_schachbrettFriedhof[1][x][y], ist_schachbrettFriedhof[1][x][y]));
+
+            // =====================================
+            // Figur erscheint auf diesem Feld
+            // =====================================
+            else if(ist_schachbrett[x][y] == e_figuren::empty &&
+                    soll_schachbrett[x][y] != e_figuren::empty)
+            {
+                Koordinate ziel = {x + 2, y};
+
+                Koordinate start =
+                    searchField(
+                        e_figuren::empty,
+                        soll_schachbrett[x][y],
+                        ziel
+                    );
+
+                if(start.x != -1)
+                {
+                    start.y = 7 - start.y;
+                    ziel.y  = 7 - ziel.y;
+
+                    goTo(start, ziel);
                     return;
                 }
             }
         }
     }
-}
 }
 void Gantry::goTo(Koordinate start, Koordinate ende){
+    Serial.printf("START: [%d][%d] ENDE: [%d][%d]\n", start.x, start.y, ende.x, ende.y);
     if(position.x == -1 || position.y == -1){
+        return;
+    }
+    if(start.x == ende.x && start.y == ende.y){
+        //Serial.println("Start == Ende");
+        return;
+    }
+    if(start.x == -1 || start.y == -1 || ende.x == -1 || ende.y == -1){
         return;
     }
     int xDir = ende.x - start.x;
     int yDir = ende.y - start.y;
-
-    bewegungsAblauf.ablaufState = ABLAUF::goToStart_x;
+    bewegungsAblauf.start = start;
+    bewegungsAblauf.ende = ende;
+    bewegungsAblauf.ablaufState = ABLAUF::schritt0;
 
     bewegungsAblauf.XOrY_Schritt0 = x;
     bewegungsAblauf.XOrY_Schritt1 = x;
@@ -202,112 +372,133 @@ void Gantry::goTo(Koordinate start, Koordinate ende){
     bewegungsAblauf.schritt2 = 0;
     bewegungsAblauf.schritt3 = 0;
     //GOTOSTART
-    bewegungsAblauf.XOrY_goToStart_x = x;
-    bewegungsAblauf.XOrY_goToStart_y = y;
-
-    bewegungsAblauf.goToStart_x = (start.x - position.x)*FIELD_STEPS;
-    bewegungsAblauf.goToStart_y = (start.y - position.y)*FIELD_STEPS;
+    bewegungsAblauf.goToStart_x = (start.x - position.x)*FIELD_STEPS_X;
+    bewegungsAblauf.goToStart_y = -(start.y - position.y)*FIELD_STEPS_Y;
+    bewegungsAblauf.startgoToStart_x = true;
+    bewegungsAblauf.startgoToStart_y = true;
     //
     if(xDir < 0 && yDir > 0){
 
-        bewegungsAblauf.XOrY_Schritt0 = x;
-        bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt0 = x;
+    bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS_X;
 
-        bewegungsAblauf.XOrY_Schritt1 = y;
-        bewegungsAblauf.schritt1 = yDir * FIELD_STEPS - HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt1 = y;
+    bewegungsAblauf.schritt1 = yDir * FIELD_STEPS_Y - HALF_FIELD_STEPS_Y;
 
-        bewegungsAblauf.XOrY_Schritt2 = x;
-        bewegungsAblauf.schritt2 = xDir * FIELD_STEPS + HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt2 = x;
+    bewegungsAblauf.schritt2 = xDir * FIELD_STEPS_X + HALF_FIELD_STEPS_X;
 
-        bewegungsAblauf.XOrY_Schritt3 = y;
-        bewegungsAblauf.schritt3 = HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt3 = y;
+    bewegungsAblauf.schritt3 = HALF_FIELD_STEPS_Y;
     }
     else if(xDir == 0 && yDir > 0){
 
-        bewegungsAblauf.XOrY_Schritt0 = x;
-        bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt0 = x;
+    bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS_X;
 
-        bewegungsAblauf.XOrY_Schritt1 = y;
-        bewegungsAblauf.schritt1 = yDir * FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt1 = y;
+    bewegungsAblauf.schritt1 = yDir * FIELD_STEPS_Y;
 
-        bewegungsAblauf.XOrY_Schritt2 = x;
-        bewegungsAblauf.schritt2 = HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt2 = x;
+    bewegungsAblauf.schritt2 = HALF_FIELD_STEPS_X;
+}
+else if(xDir > 0 && yDir > 0){
+
+    bewegungsAblauf.XOrY_Schritt0 = x;
+    bewegungsAblauf.schritt0 = HALF_FIELD_STEPS_X;
+
+    bewegungsAblauf.XOrY_Schritt1 = y;
+    bewegungsAblauf.schritt1 = yDir * FIELD_STEPS_Y - HALF_FIELD_STEPS_Y;
+
+    bewegungsAblauf.XOrY_Schritt2 = x;
+    bewegungsAblauf.schritt2 = xDir * FIELD_STEPS_X - HALF_FIELD_STEPS_X;
+
+    bewegungsAblauf.XOrY_Schritt3 = y;
+    bewegungsAblauf.schritt3 = HALF_FIELD_STEPS_Y;
+}
+else if(xDir < 0 && yDir == 0){
+
+    bewegungsAblauf.XOrY_Schritt0 = y;
+    if(start.y == 0){
+        bewegungsAblauf.schritt0 = HALF_FIELD_STEPS_Y;
     }
-    else if(xDir > 0 && yDir > 0){
-
-        bewegungsAblauf.XOrY_Schritt0 = x;
-        bewegungsAblauf.schritt0 = HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt1 = y;
-        bewegungsAblauf.schritt1 = yDir * FIELD_STEPS - HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt2 = x;
-        bewegungsAblauf.schritt2 = xDir * FIELD_STEPS - HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt3 = y;
-        bewegungsAblauf.schritt3 = HALF_FIELD_STEPS;
+    else{
+        bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS_Y;
     }
-    else if(xDir < 0 && yDir == 0){
 
-        bewegungsAblauf.XOrY_Schritt0 = y;
-        bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt1 = x;
+    bewegungsAblauf.schritt1 = xDir * FIELD_STEPS_X;
 
-        bewegungsAblauf.XOrY_Schritt1 = x;
-        bewegungsAblauf.schritt1 = xDir * FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt2 = y;
-        bewegungsAblauf.schritt2 = HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt2 = y;
+    if(start.y == 0){
+        bewegungsAblauf.schritt2 = -HALF_FIELD_STEPS_Y;
     }
-    else if(xDir > 0 && yDir == 0){
-
-        bewegungsAblauf.XOrY_Schritt0 = y;
-        bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt1 = x;
-        bewegungsAblauf.schritt1 = xDir * FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt2 = y;
-        bewegungsAblauf.schritt2 = HALF_FIELD_STEPS;
+    else{
+        bewegungsAblauf.schritt2 = HALF_FIELD_STEPS_Y;
     }
-    else if(xDir < 0 && yDir < 0){
+}
+else if(xDir > 0 && yDir == 0){
 
-        bewegungsAblauf.XOrY_Schritt0 = x;
-        bewegungsAblauf.schritt0 = HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt1 = y;
-        bewegungsAblauf.schritt1 = yDir * FIELD_STEPS + HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt2 = x;
-        bewegungsAblauf.schritt2 = xDir * FIELD_STEPS + HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt3 = y;
-        bewegungsAblauf.schritt3 = -HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt0 = y;
+    if(start.y == 0){
+        bewegungsAblauf.schritt0 = HALF_FIELD_STEPS_Y;
     }
-    else if(xDir == 0 && yDir < 0){
-
-        bewegungsAblauf.XOrY_Schritt0 = x;
-        bewegungsAblauf.schritt0 = HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt1 = y;
-        bewegungsAblauf.schritt1 = yDir * FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt2 = x;
-        bewegungsAblauf.schritt2 = -HALF_FIELD_STEPS;
+    else{
+        bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS_Y;
     }
-    else if(xDir > 0 && yDir < 0){
 
-        bewegungsAblauf.XOrY_Schritt0 = x;
-        bewegungsAblauf.schritt0 = HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt1 = x;
+    bewegungsAblauf.schritt1 = xDir * FIELD_STEPS_X;
 
-        bewegungsAblauf.XOrY_Schritt1 = y;
-        bewegungsAblauf.schritt1 = yDir * FIELD_STEPS + HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt2 = x;
-        bewegungsAblauf.schritt2 = xDir * FIELD_STEPS - HALF_FIELD_STEPS;
-
-        bewegungsAblauf.XOrY_Schritt3 = y;
-        bewegungsAblauf.schritt3 = -HALF_FIELD_STEPS;
+    bewegungsAblauf.XOrY_Schritt2 = y;
+    if(start.y == 0){
+        bewegungsAblauf.schritt2 = -HALF_FIELD_STEPS_Y;
     }
+    else{
+        bewegungsAblauf.schritt2 = HALF_FIELD_STEPS_Y;
+    }
+}
+else if(xDir < 0 && yDir < 0){
+bewegungsAblauf.XOrY_Schritt0 = x;
+bewegungsAblauf.schritt0 = -HALF_FIELD_STEPS_X;
+
+bewegungsAblauf.XOrY_Schritt1 = y;
+bewegungsAblauf.schritt1 = yDir * FIELD_STEPS_Y + HALF_FIELD_STEPS_Y;
+
+bewegungsAblauf.XOrY_Schritt2 = x;
+bewegungsAblauf.schritt2 = xDir * FIELD_STEPS_X + HALF_FIELD_STEPS_X;
+
+bewegungsAblauf.XOrY_Schritt3 = y;
+bewegungsAblauf.schritt3 = -HALF_FIELD_STEPS_Y;
+}
+else if(xDir == 0 && yDir < 0){
+
+    bewegungsAblauf.XOrY_Schritt0 = x;
+    bewegungsAblauf.schritt0 = HALF_FIELD_STEPS_X;
+
+    bewegungsAblauf.XOrY_Schritt1 = y;
+    bewegungsAblauf.schritt1 = yDir * FIELD_STEPS_Y;
+
+    bewegungsAblauf.XOrY_Schritt2 = x;
+    bewegungsAblauf.schritt2 = -HALF_FIELD_STEPS_X;
+}
+else if(xDir > 0 && yDir < 0){
+
+    bewegungsAblauf.XOrY_Schritt0 = x;
+    bewegungsAblauf.schritt0 = HALF_FIELD_STEPS_X;
+
+    bewegungsAblauf.XOrY_Schritt1 = y;
+    bewegungsAblauf.schritt1 = yDir * FIELD_STEPS_Y + HALF_FIELD_STEPS_Y;
+
+    bewegungsAblauf.XOrY_Schritt2 = x;
+    bewegungsAblauf.schritt2 = xDir * FIELD_STEPS_X - HALF_FIELD_STEPS_X;
+
+    bewegungsAblauf.XOrY_Schritt3 = y;
+    bewegungsAblauf.schritt3 = -HALF_FIELD_STEPS_Y;
+}
 
     bewegungsAblauf.isWorking = true;
+    stepperX.enableOutputs();
+    stepperY.enableOutputs();
+    return;
 }

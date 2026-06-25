@@ -41,7 +41,7 @@ private:
 	MoveInformation queenCheck(int x, int y, int destX, int destY);
 	MoveInformation checkIfKingIsAttacked(bool colorOnTurn);
 	bool checkIfKingIsCheckMate();
-	bool checkIfAreaIsEmpty(int x, int y, int destX, int destY);
+	bool checkIfAreaIsEmpty(int x, int destX, int y);
 	MoveInformation kingCheck(int x, int y, int destX, int destY);
 	//Info
 	bool rochade[2][2] = { {possible,possible},{possible,possible} }; //COLOR, ROCHADE LEFT UND RIGHT

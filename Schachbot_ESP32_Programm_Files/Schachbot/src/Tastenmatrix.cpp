@@ -3,10 +3,6 @@
 Tastenmatrix::Tastenmatrix(){
     kpd.setDebounceTime(50);
     clearKeyMatrix();
-    pinMode(16, INPUT_PULLDOWN);
-    pinMode(17, INPUT_PULLDOWN);
-    pinMode(19, INPUT_PULLDOWN);
-    pinMode(21, INPUT_PULLDOWN);
 }
 
 int Tastenmatrix::getKey(){
